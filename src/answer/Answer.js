@@ -6,7 +6,7 @@ const Answer = (props) => {
     return (
         <Container>
             {props.answers.map((number, i) =>
-                <Button className="rounded-circle m-1" key = {i}>{number}</Button>
+                <Button className="rounded-circle m-1" onClick={() => props.unSelectNumber(number)} key = {i}>{number}</Button>
             )}
         </Container>
     );

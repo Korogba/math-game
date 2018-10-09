@@ -1,0 +1,13 @@
+.selected {
+    background-color: #eeeeee;
+    color: black;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.used {
+    background-color: yellow;
+    color: black;
+    pointer-events: none;
+    cursor: not-allowed;
+}
