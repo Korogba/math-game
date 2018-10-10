@@ -4,6 +4,7 @@ import Stars from '../stars/Stars';
 import Number from '../number/Number';
 import Answer from '../answer/Answer';
 import DoneFrame from './DoneFrame';
+import Countdown from 'react-countdown-now';
 import { Container, Row, Col } from 'reactstrap';
 
 
@@ -12,12 +13,13 @@ class Game extends Component {
     static generateRandonNumber = () => 1 + Math.floor(Math.random() * 9);
 
     static initialState = () => ({
-        randomNumberOfStars: Game.generateRandonNumber(),
-            numberOfRedraws: 5,
-            selectedAnswers: [],
-            usedNumbers: [],
-            answerIsCorrect: null,
-            doneStatus: null,
+        randomNumberOfStars: 1 + Math.floor(Math.random() * 9),
+        numberOfRedraws: 5,
+        selectedAnswers: [],
+        usedNumbers: [],
+        answerIsCorrect: null,
+        doneStatus: null,
+        countDownTimer: Date.now() + 60000,
     })
 
     constructor(props) {
@@ -28,7 +30,7 @@ class Game extends Component {
     handleRedraw = () => {
         if(this.state.numberOfRedraws === 0) { return; }
         this.setState(previousState => ({
-            randomNumberOfStars: Game.generateRandonNumber(),
+            randomNumberOfStars: 1 + Math.floor(Math.random() * 9),
             numberOfRedraws: previousState.numberOfRedraws - 1,
             selectedAnswers: [],
             answerIsCorrect: null,
@@ -61,7 +63,7 @@ class Game extends Component {
             usedNumbers: previousState.usedNumbers.concat(previousState.selectedAnswers),
             answerIsCorrect: null,
             selectedAnswers: [],
-            randomNumberOfStars: Game.generateRandonNumber(),
+            randomNumberOfStars: 1 + Math.floor(Math.random() * 9),
         }), this.updateDoneStatus);
     }
 
@@ -76,18 +78,27 @@ class Game extends Component {
     updateDoneStatus = () => {
         this.setState(previousState => {
             if(previousState.usedNumbers.length ===9){
-                return {doneStatus: 'Done, Nice!'};
+
+                return {doneStatus: 'Done, Nice!', countDownTimer: Date.now()};
             }
             if(previousState.numberOfRedraws === 0 && !this.possibleSolutions(previousState)){
-                return {doneStatus: 'Game Over!'};
+                return {doneStatus: 'Game Over!', countDownTimer: Date.now()};
             }
         });
     }
 
     resetGame = () => this.setState(Game.initialState());
+
+    endGame = () => {
+        this.setState(previousState => ({
+            doneStatus: 'Time Out!',        
+        }))
+    };
+
+    renderer = ({seconds}) => <h6>{seconds}</h6>;
   
     render() {
-        const {randomNumberOfStars, numberOfRedraws, selectedAnswers, answerIsCorrect, usedNumbers, doneStatus} =  this.state
+        const {randomNumberOfStars, numberOfRedraws, selectedAnswers, answerIsCorrect, usedNumbers, doneStatus, countDownTimer} =  this.state
         return (
             <div className="App">
                 <header className="App-header">
@@ -97,7 +108,10 @@ class Game extends Component {
                             <h2 className="text-muted pull-left">Play Nine</h2>
                         </Col>
                         <Col sm={{ size: 'auto', offset: 6}}>
-                            <h2 className="text-muted pull-right">Play Nine</h2>
+                            <Countdown key={countDownTimer}
+                                       date={countDownTimer} 
+                                       onComplete={this.endGame} 
+                                       renderer={this.renderer} />
                         </Col>
                         </Row>
                         <hr color="white"/>
