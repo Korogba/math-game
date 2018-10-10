@@ -3,27 +3,32 @@ import CompoundButton from '../button/Buttons';
 import Stars from '../stars/Stars';
 import Number from '../number/Number';
 import Answer from '../answer/Answer';
+import DoneFrame from './DoneFrame';
 import { Container, Row, Col } from 'reactstrap';
 
 
 class Game extends Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            randomNumberOfStars: 1 + Math.floor(Math.random() * 9),
+    static generateRandonNumber = () => 1 + Math.floor(Math.random() * 9);
+
+    static initialState = () => ({
+        randomNumberOfStars: Game.generateRandonNumber(),
             numberOfRedraws: 5,
             selectedAnswers: [],
             usedNumbers: [],
             answerIsCorrect: null,
             doneStatus: null,
-        };
+    })
+
+    constructor(props) {
+        super(props);
+        this.state = Game.initialState();
     }
 
     handleRedraw = () => {
         if(this.state.numberOfRedraws === 0) { return; }
         this.setState(previousState => ({
-            randomNumberOfStars: 1 + Math.floor(Math.random() * 9),
+            randomNumberOfStars: Game.generateRandonNumber(),
             numberOfRedraws: previousState.numberOfRedraws - 1,
             selectedAnswers: [],
             answerIsCorrect: null,
@@ -56,7 +61,7 @@ class Game extends Component {
             usedNumbers: previousState.usedNumbers.concat(previousState.selectedAnswers),
             answerIsCorrect: null,
             selectedAnswers: [],
-            randomNumberOfStars: 1 + Math.floor(Math.random() * 9),
+            randomNumberOfStars: Game.generateRandonNumber(),
         }), this.updateDoneStatus);
     }
 
@@ -78,6 +83,8 @@ class Game extends Component {
             }
         });
     }
+
+    resetGame = () => this.setState(Game.initialState());
   
     render() {
         const {randomNumberOfStars, numberOfRedraws, selectedAnswers, answerIsCorrect, usedNumbers, doneStatus} =  this.state
@@ -88,9 +95,12 @@ class Game extends Component {
                         <Row>
                         <Col sm={{ size: 'auto', offset: 1 }}>
                             <h2 className="text-muted pull-left">Play Nine</h2>
-                            <hr/>
+                        </Col>
+                        <Col sm={{ size: 'auto', offset: 6}}>
+                            <h2 className="text-muted pull-right">Play Nine</h2>
                         </Col>
                         </Row>
+                        <hr color="white"/>
                         <Row>
                             <Col sm={{ size: 'auto', offset: 2 }}> <Stars numberOfStars={randomNumberOfStars}/> </Col>
                             <Col xs="auto"> 
@@ -109,7 +119,7 @@ class Game extends Component {
                         <Row>
                         {doneStatus ? 
                             <Col>
-                                <DoneFrame doneMessage={doneStatus} />
+                                <DoneFrame doneMessage={doneStatus} resetGame={this.resetGame} />
                             </Col> :
                             <Number onClickNumber={this.handleNumberClick}
                                     selectedAnswers={selectedAnswers}
@@ -124,12 +134,7 @@ class Game extends Component {
     }
   }
 
-  const DoneFrame = (props) => {
-    return (
-        <h2>{props.doneMessage}</h2>
-    );
-  }
-
+  // From: 
   var possibleCombinationSum = function(arr, n) {
     if (arr.indexOf(n) >= 0) { return true; }
     if (arr[0] > n) { return false; }
